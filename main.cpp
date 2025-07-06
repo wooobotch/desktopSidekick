@@ -1,5 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_rwops.h>
+#include "assets/sprite.h"
 #include <X11/Xlib.h>
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xfixes.h>
@@ -69,9 +71,11 @@ int main(int argc, char* argv[]) {
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    SDL_Surface* image = IMG_Load("../assets/sprite.png");
+
+    SDL_RWops* rw = SDL_RWFromConstMem(sprite_png, sprite_png_len);
+    SDL_Surface* image = IMG_Load_RW(rw, 1);
     if (!image) {
-        std::cerr << "Error al cargar imagen\n";
+        std::cerr << "No se pudo cargar imagen desde memoria\n";
         return 1;
     }
 
