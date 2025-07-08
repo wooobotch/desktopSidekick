@@ -5,7 +5,7 @@ if [ $# -lt 1 ]; then
     exit 1
 fi
 
-OUTPUT_DIR="assets/embedded"
+OUTPUT_DIR="embedded"
 mkdir -p "$OUTPUT_DIR"
 
 for file in "$@"; do
@@ -21,7 +21,8 @@ for file in "$@"; do
     output="${OUTPUT_DIR}/${name}.h"
 
     echo "Creating $output..."
-    xxd -i "$file" > "$output"
+    VAR_NAME=$(echo "$file"| rev | cut -d '/' -f 1 | rev)
+    xxd -n $VAR_NAME -i "$file" > "$output"
 done
 
 echo "All ready, check '$OUTPUT_DIR'"
