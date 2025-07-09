@@ -1,15 +1,28 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_rwops.h>
-#include "build/embedded/sprite_png.h"
 #include <X11/Xlib.h>
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xfixes.h>
 #include <SDL2/SDL_syswm.h>
 #include <iostream>
 
-const int WIDTH = 50;
-const int HEIGHT = 50;
+#include "build/embedded/sprite_idle_front_png.h"
+#include "build/embedded/sprite_idle_up_png.h"
+#include "build/embedded/sprite_idle_down_png.h"
+#include "build/embedded/sprite_idle_left_png.h"
+#include "build/embedded/sprite_idle_right_png.h"
+
+const int WIDTH = 150;
+const int HEIGHT = 150;
+
+enum class Direction {
+    FRONT,
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN
+};
 
 void apply_window_shape(SDL_Window* sdlWindow, SDL_Surface* surface) {
     SDL_SysWMinfo wmInfo;
@@ -58,6 +71,33 @@ void apply_window_shape(SDL_Window* sdlWindow, SDL_Surface* surface) {
 }
 
 int main(int argc, char* argv[]) {
+    Direction currentDirection = Direction::FRONT;
+    const unsigned char* image_data = nullptr;
+    unsigned int image_size = 0;
+
+    switch (currentDirection) {
+        case Direction::FRONT:
+            image_data = sprite_idle_front_png;
+            image_size = sprite_idle_front_png_len;
+            break;
+        case Direction::LEFT:
+            image_data = sprite_idle_left_png;
+            image_size = sprite_idle_left_png_len;
+            break;
+        case Direction::RIGHT:
+            image_data = sprite_idle_right_png;
+            image_size = sprite_idle_right_png_len;
+            break;
+        case Direction::UP:
+            image_data = sprite_idle_up_png;
+            image_size = sprite_idle_up_png_len;
+            break;
+        case Direction::DOWN:
+            image_data = sprite_idle_down_png;
+            image_size = sprite_idle_down_png_len;
+            break;
+    }
+
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
 
@@ -72,7 +112,7 @@ int main(int argc, char* argv[]) {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 
-    SDL_RWops* rw = SDL_RWFromConstMem(sprite_png, sprite_png_len);
+    SDL_RWops* rw = SDL_RWFromConstMem(image_data, image_size);
     SDL_Surface* image = IMG_Load_RW(rw, 1);
     if (!image) {
         std::cerr << "No se pudo cargar imagen desde memoria\n";
