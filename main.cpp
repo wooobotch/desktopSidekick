@@ -72,6 +72,7 @@ void apply_window_shape(SDL_Window* sdlWindow, SDL_Surface* surface) {
 
 int main(int argc, char* argv[]) {
     Direction currentDirection = Direction::FRONT;
+    Direction lastDirection = Direction::FRONT;
     const unsigned char* image_data = nullptr;
     unsigned int image_size = 0;
 
@@ -129,9 +130,71 @@ int main(int argc, char* argv[]) {
 
     while (running) {
         while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT)
+            if (e.type == SDL_QUIT) {
                 running = false;
+            } else if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_LEFT:
+                        currentDirection = Direction::LEFT;
+                        break;
+                    case SDLK_RIGHT:
+                        currentDirection = Direction::RIGHT;
+                        break;
+                   case SDLK_UP:
+                        currentDirection = Direction::UP;
+                        break;
+                    case SDLK_DOWN:
+                        currentDirection = Direction::DOWN;
+                        break;
+                    case SDLK_SPACE:
+                        currentDirection = Direction::FRONT;
+                        break;
+                    case SDLK_ESCAPE:
+                        running = false;
+                        break;
+                }
+            }
         }
+
+        if (currentDirection != lastDirection) {
+            lastDirection = currentDirection;
+
+            SDL_DestroyTexture(texture);
+
+            const unsigned char* image_data = nullptr;
+            unsigned int image_size = 0;
+
+            switch (currentDirection) {
+                case Direction::FRONT:
+                    image_data = sprite_idle_front_png;
+                    image_size = sprite_idle_front_png_len;
+                    break;
+                case Direction::LEFT:
+                    image_data = sprite_idle_left_png;
+                    image_size = sprite_idle_left_png_len;
+                    break;
+                case Direction::RIGHT:
+                    image_data = sprite_idle_right_png;
+                    image_size = sprite_idle_right_png_len;
+                    break;
+                case Direction::UP:
+                    image_data = sprite_idle_up_png;
+                    image_size = sprite_idle_up_png_len;
+                    break;
+                case Direction::DOWN:
+                    image_data = sprite_idle_down_png;
+                    image_size = sprite_idle_down_png_len;
+                    break;
+            }
+
+            SDL_RWops* rw = SDL_RWFromConstMem(image_data, image_size);
+            SDL_Surface* newSurface = IMG_Load_RW(rw, 1);
+            texture = SDL_CreateTextureFromSurface(renderer, newSurface);
+
+            apply_window_shape(window, newSurface);
+            SDL_FreeSurface(newSurface);
+        }
+
 
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
