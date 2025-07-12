@@ -12,6 +12,10 @@ int main(int argc, char* argv[]) {
     Direction currentDirection = Direction::FRONT;
     Direction lastDirection = Direction::FRONT;
 
+    const Uint32 min_delta_time_ms = 150;
+    Uint32 last_change_time = SDL_GetTicks();
+
+
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
 
@@ -60,8 +64,13 @@ int main(int argc, char* argv[]) {
         }
 
         if (currentDirection != lastDirection) {
-            lastDirection = currentDirection;
-            texture = loadTextureAndApplyMask(renderer, window, spriteAssets[currentDirection]);
+            Uint32 now = SDL_GetTicks();
+            if (now - last_change_time >= min_delta_time_ms) {
+                last_change_time = now;
+                lastDirection = currentDirection;
+                SDL_DestroyTexture(texture);
+                texture = loadTextureAndApplyMask(renderer, window, spriteAssets[currentDirection]);
+            }
         }
 
 
