@@ -1,16 +1,10 @@
 #include "src/utils.h"
-
-std::map<Direction, SpriteData> spriteAssets = {
-    {Direction::FRONT, {sprite_idle_front_png, sprite_idle_front_png_len}},
-    {Direction::LEFT,  {sprite_idle_left_png,  sprite_idle_left_png_len}},
-    {Direction::RIGHT, {sprite_idle_right_png, sprite_idle_right_png_len}},
-    {Direction::UP,    {sprite_idle_up_png,    sprite_idle_up_png_len}},
-    {Direction::DOWN,  {sprite_idle_down_png,  sprite_idle_down_png_len}}
-};
+#include "src/fsm.h"
+#include "src/sprites.h"
 
 int main(int argc, char* argv[]) {
-    Direction currentDirection = Direction::FRONT;
-    Direction lastDirection = Direction::FRONT;
+    State currentState = State::IDLE_FRONT;
+    State lastState = State::IDLE_FRONT;
 
     const Uint32 min_delta_time_ms = 150;
     Uint32 last_change_time = SDL_GetTicks();
@@ -29,7 +23,7 @@ int main(int argc, char* argv[]) {
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    SDL_Texture* texture = loadTextureAndApplyMask(renderer, window, spriteAssets[currentDirection]);
+    SDL_Texture* texture = loadTextureAndApplyMask(renderer, window, spriteStateMap[currentState]);
     if (!texture) return 1;
 
     bool running = true;
@@ -42,19 +36,19 @@ int main(int argc, char* argv[]) {
             } else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
                     case SDLK_LEFT:
-                        currentDirection = Direction::LEFT;
+                        currentState = State::IDLE_LEFT;
                         break;
                     case SDLK_RIGHT:
-                        currentDirection = Direction::RIGHT;
+                        currentState = State::IDLE_RIGHT;
                         break;
                    case SDLK_UP:
-                        currentDirection = Direction::UP;
+                        currentState = State::IDLE_UP;
                         break;
                     case SDLK_DOWN:
-                        currentDirection = Direction::DOWN;
+                        currentState = State::IDLE_DOWN;
                         break;
                     case SDLK_SPACE:
-                        currentDirection = Direction::FRONT;
+                        currentState = State::IDLE_FRONT;
                         break;
                     case SDLK_ESCAPE:
                         running = false;
@@ -63,13 +57,13 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        if (currentDirection != lastDirection) {
+        if (currentState != lastState) {
             Uint32 now = SDL_GetTicks();
             if (now - last_change_time >= min_delta_time_ms) {
                 last_change_time = now;
-                lastDirection = currentDirection;
+                lastState = currentState;
                 SDL_DestroyTexture(texture);
-                texture = loadTextureAndApplyMask(renderer, window, spriteAssets[currentDirection]);
+                texture = loadTextureAndApplyMask(renderer, window, spriteStateMap[currentState]);
             }
         }
 
