@@ -9,6 +9,9 @@ int main(int argc, char* argv[]) {
     const Uint32 min_delta_time_ms = 150;
     Uint32 last_change_time = SDL_GetTicks();
 
+    int frameIndex = 0;
+    Uint32 last_frame_time = SDL_GetTicks();
+    const Uint32 frame_duration_ms = 200;
 
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
@@ -23,7 +26,9 @@ int main(int argc, char* argv[]) {
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    SDL_Texture* texture = loadTextureAndApplyMask(renderer, window, spriteStateMap[currentState]);
+
+    SDL_Texture* texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
+
     if (!texture) return 1;
 
     bool running = true;
@@ -59,14 +64,24 @@ int main(int argc, char* argv[]) {
 
         if (currentState != lastState) {
             Uint32 now = SDL_GetTicks();
+            frameIndex = 0;
             if (now - last_change_time >= min_delta_time_ms) {
                 last_change_time = now;
                 lastState = currentState;
                 SDL_DestroyTexture(texture);
-                texture = loadTextureAndApplyMask(renderer, window, spriteStateMap[currentState]);
+                texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
+
             }
         }
 
+        Uint32 now = SDL_GetTicks();
+        if (now - last_frame_time >= frame_duration_ms) {
+            last_frame_time = now;
+            frameIndex = (frameIndex + 1) % spriteAnimationMap[currentState].size();
+
+            SDL_DestroyTexture(texture);
+            texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
+        }
 
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
