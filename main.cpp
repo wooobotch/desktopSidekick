@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 
     int frameIndex = 0;
     Uint32 last_frame_time = SDL_GetTicks();
-    const Uint32 frame_duration_ms = 200;
+    Uint32 frame_duration_ms = spriteAnimationMap[currentState].frame_duration_ms;
 
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
@@ -26,8 +26,8 @@ int main(int argc, char* argv[]) {
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-
-    SDL_Texture* texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
+    const SpriteData& currentFrame = spriteAnimationMap[currentState].frames[frameIndex];
+    SDL_Texture* texture = loadTextureAndApplyMask(renderer, window, currentFrame);
 
     if (!texture) return 1;
 
@@ -69,18 +69,20 @@ int main(int argc, char* argv[]) {
                 last_change_time = now;
                 lastState = currentState;
                 SDL_DestroyTexture(texture);
-                texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
-
+                frame_duration_ms = spriteAnimationMap[currentState].frame_duration_ms;
+                const SpriteData& currentFrame = spriteAnimationMap[currentState].frames[frameIndex];
+                texture = loadTextureAndApplyMask(renderer, window, currentFrame);
             }
         }
 
         Uint32 now = SDL_GetTicks();
         if (now - last_frame_time >= frame_duration_ms) {
             last_frame_time = now;
-            frameIndex = (frameIndex + 1) % spriteAnimationMap[currentState].size();
+            const std::vector<SpriteData>& frames = spriteAnimationMap[currentState].frames;
+            frameIndex = (frameIndex + 1) % frames.size();
 
             SDL_DestroyTexture(texture);
-            texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
+            texture = loadTextureAndApplyMask(renderer, window, frames[frameIndex]);
         }
 
         SDL_RenderClear(renderer);
