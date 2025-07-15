@@ -21,8 +21,20 @@ for file in "$@"; do
     output="${OUTPUT_DIR}/${name}.h"
 
     echo "Creating $output..."
+
     VAR_NAME=$(echo "$file"| rev | cut -d '/' -f 1 | rev)
-    xxd -n $VAR_NAME -i "$file" > "$output"
+    tempo=$(mktemp)
+    xxd -n $VAR_NAME -i "$file" > "$tempo"
+
+    {
+        echo "#pragma once"
+        echo ""
+        sed -E 's/^unsigned char /inline unsigned char /' "$tempo" |
+        sed -E 's/^unsigned int /inline unsigned int /'
+    } > "$output"
+
+    rm "$tempo"
+
 done
 
 echo "All ready, check '$OUTPUT_DIR'"

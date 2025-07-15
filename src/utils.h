@@ -9,10 +9,17 @@
 #include <X11/extensions/Xfixes.h>
 #include <iostream>
 #include "sprites.h"
+#include "fsm.h"
 #include <map>
+#include <vector>
 
 const int WIDTH = 150;
 const int HEIGHT = 150;
+
+extern std::map<State, std::vector<SDL_Texture*>> loadedAnimations;
+
+void loadAllAnimations(SDL_Renderer* renderer, SDL_Window* window);
+void unloadAllAnimations();
 
 inline void apply_window_shape(SDL_Window* sdlWindow, SDL_Surface* surface) {
     SDL_SysWMinfo wmInfo;
