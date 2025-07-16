@@ -79,8 +79,12 @@ int main(int argc, char* argv[]) {
             last_frame_time = now;
             frameIndex = (frameIndex + 1) % spriteAnimationMap[currentState].size();
 
+//            SDL_DestroyTexture(texture);
+//            texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
             SDL_DestroyTexture(texture);
-            texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
+            texture = loadTexture(renderer, spriteAnimationMap[currentState][frameIndex]);
+
+
         }
 
         SDL_RenderClear(renderer);
