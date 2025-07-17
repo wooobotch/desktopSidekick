@@ -27,7 +27,8 @@ int main(int argc, char* argv[]) {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 
-    SDL_Texture* texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
+//    SDL_Texture* texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
+    SDL_Texture* texture = loadTextureAndApplyMask(renderer, window, stateAnimations[currentState].body.frames[frameIndex]);
 
     if (!texture) return 1;
 
@@ -69,7 +70,8 @@ int main(int argc, char* argv[]) {
                 last_change_time = now;
                 lastState = currentState;
                 SDL_DestroyTexture(texture);
-                texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
+//                texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
+                texture = loadTextureAndApplyMask(renderer, window, stateAnimations[currentState].body.frames[frameIndex]);
 
             }
         }
@@ -77,12 +79,14 @@ int main(int argc, char* argv[]) {
         Uint32 now = SDL_GetTicks();
         if (now - last_frame_time >= frame_duration_ms) {
             last_frame_time = now;
-            frameIndex = (frameIndex + 1) % spriteAnimationMap[currentState].size();
+//            frameIndex = (frameIndex + 1) % spriteAnimationMap[currentState].size();
+            frameIndex = (frameIndex + 1) % stateAnimations[currentState].body.frames.size();
 
 //            SDL_DestroyTexture(texture);
 //            texture = loadTextureAndApplyMask(renderer, window, spriteAnimationMap[currentState][frameIndex]);
             SDL_DestroyTexture(texture);
-            texture = loadTexture(renderer, spriteAnimationMap[currentState][frameIndex]);
+//            texture = loadTexture(renderer, spriteAnimationMap[currentState][frameIndex]);
+            texture = loadTexture(renderer, stateAnimations[currentState].body.frames[frameIndex]);
 
 
         }
