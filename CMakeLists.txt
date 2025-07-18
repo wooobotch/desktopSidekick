@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(mascota_sdl)
 
-add_compile_options(-Wall -Wextra -pedantic)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -14,7 +12,6 @@ include_directories(
     ${SDL2_IMAGE_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}/embedded
     ${CMAKE_CURRENT_SOURCE_DIR}/assets
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 message(STATUS "SDL2 include dirs: ${SDL2_INCLUDE_DIRS}")
@@ -41,8 +38,7 @@ add_custom_command(
 
 add_custom_target(embed_assets DEPENDS ${EMBEDDED_HEADERS})
 
-file(GLOB SRC_FILES src/*.cpp)
-add_executable(mascota_sdl main.cpp ${SRC_FILES} ${EMBEDDED_HEADERS})
+add_executable(mascota_sdl main.cpp ${EMBEDDED_HEADERS})
 add_dependencies(mascota_sdl embed_assets)
 
 
